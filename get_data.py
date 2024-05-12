@@ -4,6 +4,9 @@ import os
 
 
 def CreateCSV(file, values):
+    """
+    Creating csv file from the values in the argument
+    """
     file_exists = os.path.exists(file)
 
     with open(file, 'a') as f:
@@ -16,6 +19,9 @@ def CreateCSV(file, values):
 
 
 def GetValues(url):
+    """
+    Fetching data from url and calls `CreateCSV` 
+    """
     response = requests.get(url)
     if response.status_code == 200:
 

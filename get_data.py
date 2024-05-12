@@ -2,42 +2,49 @@ import requests
 import csv
 import os
 
-url = "http://localhost:8080/api/jobs/"
 
-response = requests.get(url)
+def CreateCSV(file, values):
+    file_exists = os.path.exists(file)
 
+    with open(file, 'a') as f:
+        writer = csv.writer(f)
 
-if response.status_code == 200:
+        if not file_exists:
+            writer.writerow(["Assignee","Type", "State", "Status"])
 
-    data = response.json()
-    print(len(data["results"]))
-
-    for item in data["results"]:
-        assignee = item.get("assignee")
-        type = item.get("type")
-        status = item.get("status")
-        state = item.get("state")
+        writer.writerow(values)  
 
 
-        if assignee != None:
-            id = assignee.get("id")
-            file = f"{id}.csv"
-        else:
-            file = f"None.csv"
-        
-        file_exists = os.path.exists(file)
+def GetValues(url):
+    response = requests.get(url)
+    if response.status_code == 200:
 
-        with open(file, 'a') as f:
-            writer = csv.writer(f)
+        data = response.json()
 
-            if not file_exists:
-                writer.writerow(["Assignee","Type", "State", "Status"])
+        for item in data["results"]:
+            assignee = item.get("assignee")
+            type = item.get("type")
+            status = item.get("status")
+            state = item.get("state")
+
 
             if assignee != None:
-                writer.writerow([assignee, type, state, status])  
+                id = assignee.get("id")
+                file = f"{id}.csv"
+            else:
+                file = f"None.csv" 
+            
+            if assignee != None:
+                CreateCSV(file, [assignee, type, state, status])  
             else:  
-                writer.writerow(["None", type, state, status])
+                CreateCSV(file, ["None", type, state, status])
 
-else:
-    print(f"Failed: {response.status_code}")
+    else:
+        print(f"Failed: {response.status_code}")
 
+
+if __name__ == "__main__":
+
+    url = "http://localhost:8080/api/jobs/"
+
+    GetValues(url)

@@ -1,5 +1,6 @@
 import requests
 import csv
+import os
 
 url = "http://localhost:8080/api/jobs/"
 
@@ -13,23 +14,30 @@ if response.status_code == 200:
 
     for item in data["results"]:
         assignee = item.get("assignee")
+        type = item.get("type")
         status = item.get("status")
+        state = item.get("state")
+
 
         if assignee != None:
             id = assignee.get("id")
             file = f"{id}.csv"
-
-            with open(file, mode='a', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow([assignee, status])
         else:
-            with open("None.csv", mode='a', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(["None", status])
+            file = f"None.csv"
+        
+        file_exists = os.path.exists(file)
 
+        with open(file, 'a') as f:
+            writer = csv.writer(f)
 
-    
-    
+            if not file_exists:
+                writer.writerow(["Assignee","Type", "State", "Status"])
+
+            if assignee != None:
+                writer.writerow([assignee, type, state, status])  
+            else:  
+                writer.writerow(["None", type, state, status])
+
 else:
     print(f"Failed: {response.status_code}")
 
